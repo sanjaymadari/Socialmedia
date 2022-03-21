@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Socialmedia.Models;
 using Socialmedia.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 namespace Socialmedia.Controllers;
 
 [ApiController]
@@ -8,18 +9,30 @@ namespace Socialmedia.Controllers;
 public class HashtagController : ControllerBase
 {
     private readonly ILogger<HashtagController> _logger;
+    private readonly IMemoryCache _memoryCache;
     private readonly IHashtagRepository _hashtag;
     private readonly IPostRepository _post;
-    public HashtagController(ILogger<HashtagController> logger, IHashtagRepository hashtag, IPostRepository post)
+    public HashtagController(ILogger<HashtagController> logger, IHashtagRepository hashtag, IPostRepository post, IMemoryCache memoryCache)
     {
         _logger = logger;
         _hashtag = hashtag;
         _post = post;
+        _memoryCache = memoryCache;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<HashtagDTO>>> GetList()
     {
+        // DateTime currentTime;
+        // bool AlreadyExit = _memoryCache.TryGetValue("CachedTime", out currentTime);
+        // if(!AlreadyExit)
+        // {
+        //     currentTime =DateTime.Now;
+        //     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(20));
+        //     _memoryCache.Set("CachedTime",currentTime,cacheEntryOptions);
+        // }
+        CacheModel.Add("test",50);
+
         var hashtagList = (await _hashtag.GetList()).Select(x => x.asDto);
         return Ok(hashtagList);
     }

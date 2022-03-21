@@ -7,6 +7,7 @@ builder.Services.AddTransient<IUserRepository,UserRepository>();
 builder.Services.AddTransient<IPostRepository,PostRepository>();
 builder.Services.AddTransient<ILikeRepository,LikeRepository>();
 builder.Services.AddTransient<IHashtagRepository,HashtagRepository>();
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
