@@ -2,10 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Socialmedia.Models;
 using Socialmedia.Repositories;
 using Microsoft.Extensions.Caching.Memory;
+using Socialmedia.DTOs;
+using System.Text.Json;
+
 namespace Socialmedia.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/hashtag")]
 public class HashtagController : ControllerBase
 {
     private readonly ILogger<HashtagController> _logger;
@@ -21,7 +24,7 @@ public class HashtagController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<HashtagDTO>>> GetList()
+    public async Task<ActionResult<List<HashtagDTO>>> GetList([FromQuery] PaginationParams @params)
     {
         // DateTime currentTime;
         // bool AlreadyExit = _memoryCache.TryGetValue("CachedTime", out currentTime);
@@ -34,7 +37,11 @@ public class HashtagController : ControllerBase
         CacheModel.Add("test",50);
 
         var hashtagList = (await _hashtag.GetList()).Select(x => x.asDto);
-        return Ok(hashtagList);
+        var paginationMetadata = new PaginationMetadata(hashtagList.Count(), @params.Page, @params.ItemsPerPage);
+        Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+
+        var items = hashtagList.Skip((@params.Page - 1) * @params.ItemsPerPage).Take(@params.ItemsPerPage).ToList();
+        return Ok(items);
     }
 
     [HttpGet("{id}")]
