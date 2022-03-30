@@ -20,6 +20,7 @@
             //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             // },
             "env": {
+                "ASPNETCORE_URLS": "http://*:5228",
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "sourceFileMap": {

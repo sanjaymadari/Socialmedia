@@ -6,7 +6,7 @@ using Socialmedia.Repositories;
 namespace Socialmedia.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/user")]
 public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
     {
         if (!(new string[] { "male", "female" }.Contains(Data.Gender.Trim().ToLower())))
               return BadRequest("Gender value is not recognized");
-        
+
         var toCreateUser = new User
         {
             UserName = Data.UserName,
@@ -68,7 +68,7 @@ public class UserController : ControllerBase
         var existing = await _user.GetById(id);
         if (existing is null)
             return NotFound("No user found with given user id");
-        
+
         var toUpdateUser = existing with
         {
             UserName = Data.UserName ?? existing.UserName,

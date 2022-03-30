@@ -24,24 +24,30 @@ public class HashtagController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<HashtagDTO>>> GetList([FromQuery] PaginationParams @params)
+    public async Task<ActionResult<List<HashtagDTO>>> GetList(int page, int limit)
     {
-        // DateTime currentTime;
-        // bool AlreadyExit = _memoryCache.TryGetValue("CachedTime", out currentTime);
-        // if(!AlreadyExit)
-        // {
-        //     currentTime =DateTime.Now;
-        //     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(20));
-        //     _memoryCache.Set("CachedTime",currentTime,cacheEntryOptions);
-        // }
-        CacheModel.Add("test",50);
+        var hashtagList = (await _hashtag.GetList(page,limit)).Select(x => x.asDto);
+        //var paginationMetadata = new PaginationMetadata(hashtagList.Count(), @params.Page, @params.ItemsPerPage);
+        //Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+        //var items = hashtagList.Skip((@params.Page - 1) * @params.ItemsPerPage).Take(@params.ItemsPerPage).ToList();
+       
 
-        var hashtagList = (await _hashtag.GetList()).Select(x => x.asDto);
-        var paginationMetadata = new PaginationMetadata(hashtagList.Count(), @params.Page, @params.ItemsPerPage);
-        Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+    //Memory Cache
+        DateTime currentTime;
+        bool AlreadyExist = _memoryCache.TryGetValue("Cached", out currentTime);
+        if(!AlreadyExist)
+        {
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            {
+                AbsoluteExpiration = DateTime.Now.AddSeconds(50),
+                Priority = CacheItemPriority.High,
+                SlidingExpiration = TimeSpan.FromSeconds(200),
+        
+            };
 
-        var items = hashtagList.Skip((@params.Page - 1) * @params.ItemsPerPage).Take(@params.ItemsPerPage).ToList();
-        return Ok(items);
+            _memoryCache.Set("Cached", hashtagList, cacheEntryOptions);
+        }
+        return Ok(hashtagList);
     }
 
     [HttpGet("{id}")]

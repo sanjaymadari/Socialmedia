@@ -8,7 +8,7 @@ namespace Socialmedia.Repositories;
 public interface IHashtagRepository
 {
     Task<Hashtag> Create(Hashtag Data);
-    Task<List<Hashtag>> GetList();
+    Task<List<Hashtag>> GetList(int PageNumber, int Limit);
     Task<Hashtag> GetById(long HashtagId);
     Task<List<Hashtag>> GetListForPost(long PostId);
 }
@@ -34,11 +34,11 @@ public class HashtagRepository : BaseRepository, IHashtagRepository
             return await con.QuerySingleOrDefaultAsync<Hashtag>(query, new { HashtagId });
     }
 
-    public async Task<List<Hashtag>> GetList()
+    public async Task<List<Hashtag>> GetList(int PageNumber, int Limit)
     {
-        var query = $@"SELECT * FROM ""{TableNames.hashtag}"" ORDER BY id;";
+        var query = $@"SELECT * FROM ""{TableNames.hashtag}"" ORDER BY id LIMIT @Limit OFFSET @PageNumber";
         using (var con = NewConnection)
-            return (await con.QueryAsync<Hashtag>(query)).AsList();
+            return (await con.QueryAsync<Hashtag>(query, new { PageNumber = (PageNumber - 1)*Limit, Limit })).AsList();
     }
 
     public async Task<List<Hashtag>> GetListForPost(long PostId)
