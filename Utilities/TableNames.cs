@@ -2,9 +2,10 @@ namespace Socialmedia.Utilities;
 
 public enum TableNames
 {
-   user,
-   post,
-   hashtag,
-   like,
-   post_hashtag,
+    user,
+    users,
+    post,
+    hashtag,
+    like,
+    post_hashtag,
 }

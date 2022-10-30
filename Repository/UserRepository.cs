@@ -11,6 +11,7 @@ public interface IUserRepository
     Task<List<User>> GetList();
     Task<User> GetById(long UserId);
     Task<bool> Update(User Data);
+    Task<bool> Login(string sername, string password);
 }
 
 public class UserRepository : BaseRepository, IUserRepository
@@ -43,11 +44,19 @@ public class UserRepository : BaseRepository, IUserRepository
             return (await con.QueryAsync<User>(query)).AsList();
     }
 
+    public async Task<bool> Login(string Username, string Password)
+    {
+        var query = $@"SELECT * FROM ""{TableNames.users}"" WHERE username = @Username and password = @Password";
+        using (var con = NewConnection)
+            return (await con.QueryAsync(query, new { Username, Password })).Count() > 0;
+
+    }
+
     public async Task<bool> Update(User Data)
     {
         var query = $@"UPDATE ""{TableNames.user}"" SET user_name = @UserName, password = @Password, 
         first_name = @FirstName, last_name = @LastName, bio = @Bio WHERE id = @Id;";
         using (var con = NewConnection)
-            return (await con.ExecuteAsync(query,Data)) == 1;
+            return (await con.ExecuteAsync(query, Data)) == 1;
     }
 }
